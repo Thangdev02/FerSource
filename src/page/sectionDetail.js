@@ -6,60 +6,72 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import { styled } from '@mui/system';
+import BASE_URL from '../env';
 
 const StyledCard = styled(Card)({
   maxWidth: 345,
   margin: '20px auto',
+  padding: '20px',
+  position: 'relative',
 });
 
 const StyledMedia = styled(CardMedia)({
-  height: 140,
+  height: 200,
+});
+
+const Ribbon = styled('div')({
+  position: 'absolute',
+  top: '10px',
+  right: '-10px',
+  backgroundColor: '#ff6347',
+  color: 'white',
+  padding: '5px 15px',
+  transform: 'rotate(45deg)',
+  zIndex: 1,
 });
 
 const Detail = () => {
   const { id } = useParams();
-  const [student, setStudent] = useState(null);
+  const [section, setSection] = useState(null);
 
   useEffect(() => {
-    axios.get(`https://6680067356c2c76b495ae640.mockapi.io/studentManagement/${id}`)
+    axios.get(`${BASE_URL}/sectionManagement/${id}`)
       .then(response => {
-        setStudent(response.data);
+        setSection(response.data);
       })
       .catch(error => {
         console.error('Error fetching data:', error);
       });
   }, [id]);
 
-  if (!student) {
+  if (!section) {
     return <div>Loading...</div>;
   }
 
   return (
-    <div>
-      <p>{student.name}</p>
-      <p>{student.dateofbirth}</p>
-      <p>{student.gender}</p>
-      <p>{student.class}</p>
-      <img src={student.image}/>
-      <p>{student.feedback}</p>
-    </div>
-    // <StyledCard>
-    //   <StyledMedia
-    //     image={section.image}
-    //     title={section.sectionName}
-    //   />
-    //   <CardContent>
-    //     <Typography gutterBottom variant="h5" component="h2">
-    //       {section.sectionName}
-    //     </Typography>
-    //     <Typography variant="body2" color="textSecondary" component="p">
-    //       Duration: {section.duration}
-    //     </Typography>
-    //     <Typography variant="body2" color="textSecondary" component="p">
-    //       {section.sectionDescription}
-    //     </Typography>
-    //   </CardContent>
-    // </StyledCard>
+    <StyledCard>
+      {section.isMainTask && <Ribbon>Main Task</Ribbon>}
+      <StyledMedia
+        image={section.image}
+        title={section.sectionName}
+      />
+      <CardContent>
+        <Typography gutterBottom variant="h5" component="div">
+          {section.sectionName}
+        </Typography>
+        <Typography variant="body2" color="textSecondary" component="p">
+          Description: {section.sectionDescription}
+        </Typography>
+        <Typography variant="body2" color="textSecondary" component="p">
+          Duration: {section.duration}
+        </Typography>
+        
+        {/* <Typography variant="body2" color="textSecondary" component="p">
+          Created Date: {new Date(section.createdAt).toLocaleDateString()}
+        </Typography> */}
+        
+      </CardContent>
+    </StyledCard>
   );
 };
 

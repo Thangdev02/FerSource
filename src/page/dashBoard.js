@@ -12,32 +12,35 @@ import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, CircularProgress, TextField, Switch, FormControlLabel } from '@mui/material';
+import { Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, CircularProgress, TextField, FormControlLabel, Switch } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import BASE_URL from '../env';
 
 const validationSchema = Yup.object({
-  name: Yup.string().min(3, "Must be more than 2 words").required("Required"),
-  dateofbirth: Yup.string().required("Required"),
-  gender: Yup.string().required("Required"),
-  class: Yup.string().required("Required"),
+  sectionName: Yup.string()
+    .min(3, "Must be more than 2 characters")
+    .required("Required"),
+  duration: Yup.number("Number of minutes").required("Required"),
+  isMainTask: Yup.boolean(),
+  sectionDescription: Yup.string().required("Required"),
+
   image: Yup.string().url("Must be a valid URL").required("Required"),
-  feedback: Yup.string().required("Required"),
 });
 
 const Dashboard = () => {
-  const [students, setStudents] = useState([]);
+  const [section, setSection] = useState([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [currentStudent, setCurrentStudent] = useState(null);
+  const [currentSection, setCurrentSection] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [loading, setLoading] = useState(true); // State for loading indicator
   const [error, setError] = useState(null); // State for error handling
 
   useEffect(() => {
-    axios.get('https://6680067356c2c76b495ae640.mockapi.io/studentManagement')
+    axios.get(`${BASE_URL}/sectionManagement`)
       .then(response => {
-        setStudents(response.data);
+        setSection(response.data);
         setLoading(false); // Update loading state after data fetch
       })
       .catch(error => {
@@ -54,14 +57,14 @@ const Dashboard = () => {
 
   const handleConfirmDelete = () => {
     if (deleteId) {
-      axios.delete(`https://6680067356c2c76b495ae640.mockapi.io/studentManagement/${deleteId}`)
+      axios.delete(`${BASE_URL}/sectionManagement/${deleteId}`)
         .then(() => {
           // Update state after successful delete
-          setStudents(prevStudents => prevStudents.filter(student => student.id !== deleteId));
+          setSection(prevSection => prevSection.filter(member => member.id !== deleteId));
           setDeleteDialogOpen(false);
         })
         .catch(error => {
-          console.error('Error deleting student:', error);
+          console.error('Error deleting staff:', error);
         });
     }
   };
@@ -71,46 +74,46 @@ const Dashboard = () => {
     setDeleteDialogOpen(false);
   };
 
-  const handleEdit = (student) => {
-    setCurrentStudent(student);
-    setEditDialogOpen(true);
-  };
+  // const handleEdit = (member) => {
+  //   setCurrentSection(member);
+  //   setEditDialogOpen(true);
+  // };
 
-  const handleCloseEdit = () => {
-    setCurrentStudent(null);
-    setEditDialogOpen(false);
-  };
+  // const handleCloseEdit = () => {
+  //   setCurrentSection(null);
+  //   setEditDialogOpen(false);
+  // };
 
-  const formik = useFormik({
-    initialValues: {
-      name: currentStudent ? currentStudent.name : '',
-      dateofbirth: currentStudent ? currentStudent.dateofbirth : '',
-      gender: currentStudent ? currentStudent.gender : '',
-      class: currentStudent ? currentStudent.class : '',
-      image: currentStudent ? currentStudent.image : '',
-      feedback: currentStudent ? currentStudent.feedback : '',
-    },
-    validationSchema: validationSchema,
-    onSubmit: (values) => {
-      if (currentStudent) {
-        axios.put(`https://6680067356c2c76b495ae640.mockapi.io/studentManagement/${currentStudent.id}`, values)
-          .then(response => {
-            // Update students state after successful edit
-            setStudents(prevStudents => prevStudents.map(student => student.id === currentStudent.id ? response.data : student));
-            handleCloseEdit();
-          })
-          .catch(error => {
-            console.error('Error updating student:', error);
-          });
-      }
-    },
-    enableReinitialize: true, // Reinitialize form when currentStudent changes
-  });
+  // const formik = useFormik({
+  //   initialValues: {
+  //     sectionName: currentSection ? currentSection.sectionName : '',
+  //     duration: currentSection ? currentSection.duration : '',
+  //     isMainTask: currentSection ? currentSection.isMainTask : '',
+  //     sectionDescription: currentSection ? currentSection.sectionDescription : '',
+  //     image: currentSection ? currentSection.image : '',
+  //     // createdAt: currentStaff ? currentStaff.createdAt : '',
+  //   },
+  //   validationSchema: validationSchema,
+  //   onSubmit: (values) => {
+  //     if (currentSection) {
+  //       axios.put(`${BASE_URL}/sectionManagement/${currentSection.id}`, values)
+  //         .then(response => {
+  //           // Update staff state after successful edit
+  //           setSection(prevSection => prevSection.map(member => member.id === currentSection.id ? response.data : member));
+  //           handleCloseEdit();
+  //         })
+  //         .catch(error => {
+  //           console.error('Error updating section:', error);
+  //         });
+  //     }
+  //   },
+  //   enableReinitialize: true, // Reinitialize form when currentStaff changes
+  // });
 
   return (
     <div>
       <Typography variant="h6" style={{ marginLeft: '20px' }}>
-        <Link to="/add" style={{ color: 'inherit', textDecoration: 'none' }}>Create Student</Link>
+        <Link to="/add" style={{ color: 'inherit', textDecoration: 'none' }}>Create Section</Link>
       </Typography>
       {loading ? (
         <CircularProgress />
@@ -121,34 +124,32 @@ const Dashboard = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Date of Birth</TableCell>
-                <TableCell>Gender</TableCell>
-                <TableCell>Class</TableCell>
+                <TableCell>Section Name</TableCell>
+                <TableCell>Duration</TableCell>
+                <TableCell>sectionDescription</TableCell>
                 <TableCell>Image</TableCell>
-                <TableCell>Feedback</TableCell>
+                {/* <TableCell>Created At</TableCell> */}
                 <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {students.map(student => (
-                <TableRow key={student.id}>
-                  <TableCell>{student.name}</TableCell>
-                  <TableCell>{student.dateofbirth}</TableCell>
-                  <TableCell>{student.gender}</TableCell>
-                  <TableCell>{student.class}</TableCell>
+              {section.map(sectio => (
+                <TableRow key={sectio.id}>
+                  <TableCell>{sectio.sectionName}</TableCell>
+                  <TableCell>{sectio.duration}</TableCell>
+                  <TableCell>{sectio.sectionDescription}</TableCell>
                   <TableCell>
-                    <img src={student.image} alt={student.name} style={{ width: '100px', height: 'auto' }} />
+                    <img src={sectio.image} alt={sectio.name} style={{ width: '100px', height: 'auto' }} />
                   </TableCell>
-                  <TableCell>{student.feedback}</TableCell>
+                  {/* <TableCell>{new Date(sectio.createdAt).toLocaleDateString()}</TableCell> */}
                   <TableCell>
-                    <IconButton component={Link} to={`/detail/${student.id}`}>
+                    <IconButton component={Link} to={`/detail/${sectio.id}`}>
                       <VisibilityIcon />
                     </IconButton>
-                    <IconButton onClick={() => handleEdit(student)}>
+                    <IconButton onClick={() => handleEdit(sectio)}>
                       <EditIcon />
                     </IconButton>
-                    <IconButton onClick={() => handleDelete(student.id)}>
+                    <IconButton onClick={() => handleDelete(sectio.id)}>
                       <DeleteIcon />
                     </IconButton>
                   </TableCell>
@@ -162,7 +163,7 @@ const Dashboard = () => {
       <Dialog open={deleteDialogOpen} onClose={handleCancelDelete}>
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
-          <Typography>Are you sure you want to delete this Student?</Typography>
+          <Typography>Are you sure you want to delete this Staff?</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCancelDelete} color="primary">
@@ -174,75 +175,68 @@ const Dashboard = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={editDialogOpen} onClose={handleCloseEdit} maxWidth="sm" fullWidth>
-        <DialogTitle>Edit Student</DialogTitle>
+      {/* <Dialog open={editDialogOpen} onClose={handleCloseEdit} maxWidth="sm" fullWidth>
+        <DialogTitle>Edit Staff</DialogTitle>
         <DialogContent>
           <form onSubmit={formik.handleSubmit}>
             <TextField
               fullWidth
-              id="name"
-              name="name"
-              label="Name"
-              value={formik.values.name}
+              id="sectionName"
+              name="sectionName"
+              label="sectionName"
+              value={formik.values.sectionName}
               onChange={formik.handleChange}
-              error={formik.touched.name && Boolean(formik.errors.name)}
-              helperText={formik.touched.name && formik.errors.name}
+              error={formik.touched.sectionName && Boolean(formik.errors.sectionName)}
+              helperText={formik.touched.sectionName && formik.errors.sectionName}
               margin="normal"
             />
             <TextField
               fullWidth
-              id="dateofbirth"
-              name="dateofbirth"
-              label="Date of Birth"
-              value={formik.values.dateofbirth}
+              id="duration"
+              name="duration"
+              label="duration"
+              value={formik.values.duration}
               onChange={formik.handleChange}
-              error={formik.touched.dateofbirth && Boolean(formik.errors.dateofbirth)}
-              helperText={formik.touched.dateofbirth && formik.errors.dateofbirth}
+              error={formik.touched.duration && Boolean(formik.errors.duration)}
+              helperText={formik.touched.duration && formik.errors.duration}
               margin="normal"
             />
-            <TextField
-              fullWidth
-              id="gender"
-              name="gender"
-              label="Gender"
-              value={formik.values.gender}
-              onChange={formik.handleChange}
-              error={formik.touched.gender && Boolean(formik.errors.gender)}
-              helperText={formik.touched.gender && formik.errors.gender}
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              id="class"
-              name="class"
-              label="Class"
-              value={formik.values.class}
-              onChange={formik.handleChange}
-              error={formik.touched.class && Boolean(formik.errors.class)}
-              helperText={formik.touched.class && formik.errors.class}
-              margin="normal"
-            />
+           
             <TextField
               fullWidth
               id="image"
               name="image"
-              label="Image URL"
+              label="image URL"
               value={formik.values.image}
               onChange={formik.handleChange}
               error={formik.touched.image && Boolean(formik.errors.image)}
               helperText={formik.touched.image && formik.errors.image}
               margin="normal"
             />
+              <FormControlLabel
+              control={
+                <Switch
+                  id="isMainTask"
+                  name="isMainTask"
+                  checked={formik.values.isMainTask}
+                  onChange={formik.handleChange}
+                  color="primary"
+                />
+              }
+              label="Is Main Task"
+            />
             <TextField
               fullWidth
-              id="feedback"
-              name="feedback"
-              label="Feedback"
-              value={formik.values.feedback}
+              id="sectionDescription"
+              name="sectionDescription"
+              label="sectionDescription"
+              type="sectionDescription"
+              value={formik.values.sectionDescription}
               onChange={formik.handleChange}
-              error={formik.touched.feedback && Boolean(formik.errors.feedback)}
-              helperText={formik.touched.feedback && formik.errors.feedback}
+              error={formik.touched.sectionDescription && Boolean(formik.errors.sectionDescription)}
+              helperText={formik.touched.sectionDescription && formik.errors.sectionDescription}
               margin="normal"
+              InputLabelProps={{ shrink: true }}
             />
             <DialogActions>
               <Button onClick={handleCloseEdit} color="primary">
@@ -254,7 +248,7 @@ const Dashboard = () => {
             </DialogActions>
           </form>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </div>
   );
 };

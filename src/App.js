@@ -2,12 +2,12 @@ import React from "react";
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import { AppBar, Toolbar, Typography } from "@mui/material";
 import Home from "./page/homePage";
-import Dashboard from "./page/dashBoard";
 import Contact from "./page/contact";
 import Detail from "./page/sectionDetail";
 import AddSection from "./page/addSection";
-import UpdateSection from "./page/updateSection";
+import Dashboard from "./page/dashBoard";
 import ServicePage from "./page/servicePage";
+import Trangmoi from "./page/trangmoi";
 
 const App = () => {
   return (
@@ -37,12 +37,15 @@ const App = () => {
           </Typography>
           <Typography variant="h6" style={{ marginLeft: "20px" }}>
             <Link
-              to="/service"
+              to="/trangmoi"
               style={{ color: "inherit", textDecoration: "none" }}
             >
-              Service
+              Trang moi
             </Link>
           </Typography>
+
+        
+
         </Toolbar>
       </AppBar>
 
@@ -50,10 +53,9 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/trangmoi" element={<Trangmoi />} />
         <Route path="/detail/:id" element={<Detail />} />
-        <Route path="/service" element={<ServicePage />} />
         <Route path="/add" element={<AddSection />} />
-        <Route path="/edit/:id" element={<UpdateSection />} />
       </Routes>
     </Router>
   );

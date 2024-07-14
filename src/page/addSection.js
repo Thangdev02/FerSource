@@ -4,48 +4,52 @@ import * as Yup from "yup";
 import {
   TextField,
   Button,
-  Switch,
-  FormControlLabel,
   Container,
   Typography,
+  Switch,
+  FormControlLabel,
 } from "@mui/material";
 import axios from "axios";
+import BASE_URL from "../env";
 
 const validationSchema = Yup.object({
-  name: Yup.string().min(3, "Must be more than 2 words").required("Required"),
-  dateofbirth: Yup.string().required("Required"),
-  gender: Yup.boolean(),
-  class: Yup.string().required("Required"),
+  sectionName: Yup.string()
+    .min(3, "Must be more than 2 characters")
+    .required("Required"),
+  duration: Yup.number("Number of minutes").required("Required"),
+  isMainTask: Yup.boolean(),
   image: Yup.string().url("Must be a valid URL").required("Required"),
-  feedback: Yup.string().required("Required"),
 });
 
 const AddSection = () => {
   const formik = useFormik({
     initialValues: {
-      name: "",
-      dateofbirth: "",
-      gender: false,
-      class: "",
+      sectionName: "",
+      duration: "",
+      isMainTask: true,
+      sectionDescription: "",
       image: "",
-      feedback: "",
+
+      // createdAt: new Date().toISOString().split("T")[0], // Set current date as initial value
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
       axios
         .post(
-          "https://6680067356c2c76b495ae640.mockapi.io/studentManagement",
-          values
+          `${BASE_URL}/sectionManagement`,
+          { ...values }
+
+          // { ...values, createdAt: new Date().toISOString() } // Ensure createdAt is the current date-time
         )
         .then((response) => {
-          console.log("Student added:", response.data);
+          console.log("Section added:", response.data);
           alert("Created Successfully!");
           // Redirect or clear form after submission
+          formik.resetForm();
         })
         .catch((error) => {
-          console.error("Error adding Student:", error);
-          alert("Ko Create dc!");
-
+          console.error("Error adding Section:", error);
+          alert("Creation failed!");
         });
     },
   });
@@ -53,59 +57,56 @@ const AddSection = () => {
   return (
     <Container maxWidth="sm">
       <Typography variant="h4" component="h1" gutterBottom>
-        Add Students
+        Add Section
       </Typography>
       <form onSubmit={formik.handleSubmit}>
-        //name
         <TextField
           fullWidth
-          id="name"
-          name="name"
-          label="Name"
-          value={formik.values.name}
-          onChange={formik.handleChange}
-          error={formik.touched.name && Boolean(formik.errors.name)}
-          helperText={formik.touched.name && formik.errors.name}
-          margin="normal"
-        />
-        //date
-        <TextField
-          fullWidth
-          id="dateofbirth"
-          name="dateofbirth"
-          label="Date of Birth"
-          value={formik.values.dateofbirth}
+          id="sectionName"
+          name="sectionName"
+          label="sectionName"
+          value={formik.values.sectionName}
           onChange={formik.handleChange}
           error={
-            formik.touched.dateofbirth && Boolean(formik.errors.dateofbirth)
+            formik.touched.sectionName && Boolean(formik.errors.sectionName)
           }
-          helperText={formik.touched.dateofbirth && formik.errors.dateofbirth}
+          helperText={formik.touched.sectionName && formik.errors.sectionName}
           margin="normal"
         />
-        //gender
+
+        <TextField
+          fullWidth
+          id="duration"
+          name="duration"
+          label="duration"
+          value={formik.values.duration}
+          onChange={formik.handleChange}
+          error={formik.touched.duration && Boolean(formik.errors.duration)}
+          helperText={formik.touched.duration && formik.errors.duration}
+          margin="normal"
+        />
         <FormControlLabel
           control={
             <Switch
-              id="gender"
-              name="gender"
-              checked={formik.values.gender}
+              id="isMainTask"
+              name="isMainTask"
+              checked={formik.values.isMainTask}
               onChange={formik.handleChange}
               color="primary"
             />
           }
-          label="Gender"
+          label="Is Main Task"
         />
-        //image
 
         <TextField
           fullWidth
-          id="class"
-          name="class"
-          label="Class"
-          value={formik.values.class}
+          id="sectionDescription"
+          name="sectionDescription"
+          label="sectionDescription"
+          value={formik.values.sectionDescription}
           onChange={formik.handleChange}
-          error={formik.touched.class && Boolean(formik.errors.class)}
-          helperText={formik.touched.class && formik.errors.class}
+          error={formik.touched.sectionDescription && Boolean(formik.errors.sectionDescription)}
+          helperText={formik.touched.sectionDescription && formik.errors.sectionDescription}
           margin="normal"
         />
 
@@ -113,22 +114,11 @@ const AddSection = () => {
           fullWidth
           id="image"
           name="image"
-          label="Image URL"
+          label="image URL"
           value={formik.values.image}
           onChange={formik.handleChange}
           error={formik.touched.image && Boolean(formik.errors.image)}
           helperText={formik.touched.image && formik.errors.image}
-          margin="normal"
-        />
-        <TextField
-          fullWidth
-          id="feedback"
-          name="feedback"
-          label="Feedback"
-          value={formik.values.feedback}
-          onChange={formik.handleChange}
-          error={formik.touched.feedback && Boolean(formik.errors.feedback)}
-          helperText={formik.touched.feedback && formik.errors.feedback}
           margin="normal"
         />
 

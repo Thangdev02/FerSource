@@ -7,6 +7,7 @@ import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import { styled } from '@mui/system';
 import { Button } from '@mui/material';
+import BASE_URL from '../env';
 
 const Root = styled('div')({
   display: 'flex',
@@ -25,15 +26,14 @@ const StyledMedia = styled(CardMedia)({
 });
 
 const Home = () => {
-  const [students, setStudents] = useState([]);
+  const [sections, setSections] = useState([]);
 
   useEffect(() => {
-    axios.get('https://6680067356c2c76b495ae640.mockapi.io/studentManagement')
+    axios.get(`${BASE_URL}/sectionManagement`)
       .then(response => {
-        const sortedStudents = response.data.sort((a, b) => a.name.localeCompare(b.name));
-        //dong 33 la tuy theo de keu xu ly nhu the nao
-        //Code hien tai la hien thi ten theo bang chu cai
-        setStudents(sortedStudents);
+        const mainTaskStaffs = response.data.filter(sections => sections.isMainTask === true);
+        setSections(mainTaskStaffs);
+        console.log("asdasdas");
       })
       .catch(error => {
         console.error('Error fetching data:', error);
@@ -43,36 +43,29 @@ const Home = () => {
   return (
     <div>
       <Typography variant="h4" component="h1" gutterBottom>
-        Home Student
+        Section List
       </Typography>
       <Root>
-        {students.map(student => (
-          <div key={student.id}>
-            <p>{student.id}</p>
-            <p>{student.name}</p>
-            <p>{student.dateofbirth}</p>
-            <p>{student.gender}</p>
-            <p>{student.class}</p>
-           <img src={student.image}/>
-          <Link to={`/detail/${student.id}`}> <Button variant='contained'>Detail</Button></Link>
-          </div>
+        {sections.map(section => (
+          <StyledCard key={section.id}>
+            <StyledMedia
+              image={section.image}
+              title={section.sectionName}
+            />
+            <CardContent>
+            <Link to={`/detail/${section.id}`} style={{ textDecoration: 'none' }}>
+              <Typography variant="h5" component="h2">
+                {section.sectionName}
+              </Typography>
+              </Link>
 
-          // <StyledCard key={section.id}>
-          //   <StyledMedia
-          //     image={section.image}
-          //     title={section.sectionName}
-          //   />
-          //   <CardContent>
-          //     <Link to={`/detail/${section.id}`} style={{ textDecoration: 'none' }}>
-          //       <Typography variant="h5" component="h2">
-          //         {section.sectionName}
-          //       </Typography>
-          //     </Link>
-          //     <Typography variant="body2" color="textSecondary" component="p">
-          //       Duration: {section.duration}
-          //     </Typography>
-          //   </CardContent>
-          // </StyledCard>
+
+              <Typography variant="body2" color="textSecondary" component="p">
+                Duration: {section.duration}
+              </Typography>
+              
+            </CardContent>
+          </StyledCard>
         ))}
       </Root>
     </div>
